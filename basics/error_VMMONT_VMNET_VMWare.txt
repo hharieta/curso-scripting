@@ -1,0 +1,19 @@
+# On Linux host with secure mode enabled, it is not allowed to load any unsigned
+# drivers. Due to this, VMware drivers, such as vmmon and vmnet, are not able to
+# be loaded which prevents virtual machine to power on.
+
+openssl req -new -x509 -newkey rsa:2048 -keyout MOK.priv -outform DER -out MOK.der -nodes -days 36500 -subj "/CN=VMWare"
+sudo /usr/src/linux-headers-$(uname -r)/scripts/sign-file sha256 ./MOK.priv ./MOK.der $(modinfo -n vmmon)
+sudo /usr/src/linux-headers-$(uname -r)/scripts/sign-file sha256 ./MOK.priv ./MOK.der $(modinfo -n vmnet)
+sudo su
+mokutil --import MOK.der
+input password:
+input password again:
+exit
+sudo shutdown -r now
+
+
+# During the very next startup, you may need to enter MOK Management during boot,
+# and select "ENROLL MOK" to import the key, and reboot once more.
+
+
