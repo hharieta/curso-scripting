@@ -1,0 +1,4 @@
+value,action
+New,CreateNewDoc()
+Open,OpenDoc()
+Close,CloseDoc()

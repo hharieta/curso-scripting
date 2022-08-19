@@ -1,0 +1,32 @@
+ {
+	 "UserName": "citrix-xendesktop-ec2-provisioning", 
+         "GroupList": [], 
+         "CreateDate": "2017-11-07T14:20:14Z", 
+         "UserId": "1234556", 
+         "Path": "/", 
+         "AttachedManagedPolicies": [
+		 {
+			 "PolicyName": "AmazonEC2FullAccess", 
+			 "PolicyArn": "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
+		 },
+		 {
+			 "PolicyName": "AmazonS3FullAccess",
+			 "PolicyArn": "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+		 }
+	 ],
+	 "Arn": "arn:aws:iam::1234567890:user/citrix-xendesktop-ec2-provisioning"
+ },
+ {
+	 "UserName": "rundeck-read-only-iam-permissions", 
+	 "GroupList": [],
+	 "CreateDate": "2018-03-09T11:13:38Z", 
+	 "UserId": "AIDAJQOQGKISLCWDXG6EQ", 
+	 "Path": "/",
+	 "AttachedManagedPolicies": [
+		 {
+			 "PolicyName": "IAMReadOnlyAccess", 
+			 "PolicyArn": "arn:aws:iam::aws:policy/IAMReadOnlyAccess"
+		 }
+	 ], 
+	 "Arn": "arn:aws:iam::279052847476:user/rundeck-read-only-iam-permissions"
+}

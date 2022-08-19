@@ -1,0 +1,40 @@
+{
+    "sites": [
+        {
+            "site_id": 123456,
+            "status": "configured",
+            "domain": "www.domain.com",
+            "account_id": 654321,
+            "security": {
+                "waf": {
+                    "rules": [
+                        {
+                            "action": "block_request",
+                            "action_text": "Block",
+                            "id": "sqli",
+                            "name": "SQLi"
+                        },
+                        {
+                            "action": "block_request",
+                            "action_text": "Block",
+                            "id": "xss",
+                            "name": "XSS"
+                        },
+                        {
+                            "action": "alert",
+                            "action_text": "Alert",
+                            "id": "path_vector",
+                            "name": "Path Vector"
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "res": 0,
+    "res_message": "OK",
+    "debug_info": {
+        "id-info": "9123"
+    }
+}
+

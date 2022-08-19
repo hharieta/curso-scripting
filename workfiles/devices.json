@@ -1,0 +1,15 @@
+{
+	"amount": 4,
+	"device": [
+		{
+			"hostname": "XR1",
+			"IPv4": "169.254.255.51",
+			"nas": "Cisco IOS XR"
+		},
+		{
+			"hostname": "EOS1",
+			"IPv4": "169.254.255.52",
+			"nas": "Cumulus Linux"
+		}
+	]
+}
