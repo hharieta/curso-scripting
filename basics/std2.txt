@@ -1,0 +1,1 @@
+cat: /etc/pwss: No existe el archivo o el directorio

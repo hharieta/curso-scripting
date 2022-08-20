@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Author: Gatovsky
+
+opcion=""
+read -p "Selección [A-B] > " opcion
+
+
+case $opcion in
+	"A") echo "Lectura A";;
