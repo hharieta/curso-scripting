@@ -1,7 +1,7 @@
 # Scripting en Bash y Python 
 
 
-> El profesor: Aprendan Linux, les servirá en la vida
+> El profesor: Aprendan Bash Script, les servirá en la vida
  
 > \*Me asaltan\*
  
